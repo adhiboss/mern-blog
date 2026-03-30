@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:5000/api/posts')
@@ -14,18 +17,56 @@ function App() {
       .catch(() => setLoading(false));
   }, []);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title || !body) return;
+    const newPost = { id: posts.length + 1, title, body };
+    setPosts([newPost, ...posts]);
+    setTitle('');
+    setBody('');
+    setShowForm(false);
+  };
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <h1 style={styles.title}>MERN Blog</h1>
         <p style={styles.subtitle}>Built with MongoDB · Express · React · Node</p>
+        <button
+          style={styles.button}
+          onClick={() => setShowForm(!showForm)}
+        >
+          {showForm ? 'Cancel' : '+ New Post'}
+        </button>
       </header>
+
+      {showForm && (
+        <div style={styles.form}>
+          <h2 style={styles.formTitle}>Create New Post</h2>
+          <input
+            style={styles.input}
+            placeholder="Post title..."
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+          />
+          <textarea
+            style={styles.textarea}
+            placeholder="Write your post..."
+            value={body}
+            onChange={e => setBody(e.target.value)}
+            rows={5}
+          />
+          <button style={styles.button} onClick={handleSubmit}>
+            Publish Post
+          </button>
+        </div>
+      )}
 
       <main style={styles.main}>
         {loading ? (
           <p style={styles.loading}>Loading posts...</p>
         ) : posts.length === 0 ? (
-          <p style={styles.loading}>No posts found.</p>
+          <p style={styles.loading}>No posts yet. Create one!</p>
         ) : (
           posts.map(post => (
             <div key={post.id} style={styles.card}>
@@ -67,13 +108,8 @@ const styles = {
     color: '#8b949e',
     marginTop: '8px',
   },
-  main: {
-    padding: '30px 0',
-  },
-  loading: {
-    textAlign: 'center',
-    color: '#8b949e',
-  },
+  main: { padding: '30px 0' },
+  loading: { textAlign: 'center', color: '#8b949e' },
   card: {
     backgroundColor: '#161b22',
     border: '1px solid #21262d',
@@ -81,20 +117,54 @@ const styles = {
     padding: '20px',
     marginBottom: '20px',
   },
-  postTitle: {
-    color: '#58a6ff',
-    marginTop: 0,
-  },
-  postBody: {
-    color: '#c9d1d9',
-    lineHeight: '1.6',
-  },
+  postTitle: { color: '#58a6ff', marginTop: 0 },
+  postBody: { color: '#c9d1d9', lineHeight: '1.6' },
   footer: {
     textAlign: 'center',
     padding: '20px 0',
     borderTop: '1px solid #21262d',
     color: '#8b949e',
     fontSize: '0.9rem',
+  },
+  form: {
+    backgroundColor: '#161b22',
+    border: '1px solid #21262d',
+    borderRadius: '8px',
+    padding: '20px',
+    margin: '20px 0',
+  },
+  formTitle: { color: '#58a6ff', marginTop: 0 },
+  input: {
+    width: '100%',
+    padding: '10px',
+    marginBottom: '10px',
+    backgroundColor: '#0d1117',
+    border: '1px solid #21262d',
+    borderRadius: '6px',
+    color: '#c9d1d9',
+    fontSize: '1rem',
+    boxSizing: 'border-box',
+  },
+  textarea: {
+    width: '100%',
+    padding: '10px',
+    marginBottom: '10px',
+    backgroundColor: '#0d1117',
+    border: '1px solid #21262d',
+    borderRadius: '6px',
+    color: '#c9d1d9',
+    fontSize: '1rem',
+    boxSizing: 'border-box',
+    resize: 'vertical',
+  },
+  button: {
+    backgroundColor: '#238636',
+    color: '#fff',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '1rem',
   },
 };
 
